@@ -11,7 +11,7 @@
       <%== csrf_input_tag %>
       <input type="hidden" name="redirect_path" value="<%= params["redirect_path"] %>">
       <input type="hidden" name="operation" value="<%= params["operation"] %>">
-      <input type="text" name="value" value="<%= params["value"] %>" placeholder="<%= Flipper::UI.configuration.add_actor_placeholder %>" class="form-control mr-2">
+      <input type="text" name="value" value="<%= params["value"] %>" readonly="<%= params["readonly"].present? %>" placeholder="<%= Flipper::UI.configuration.add_actor_placeholder %>" class="form-control mr-2">
       <input type="submit" value="<%= params["operation"]&.capitalize || 'Enable' %>" class="btn btn-primary">
     </form>
   </div>
