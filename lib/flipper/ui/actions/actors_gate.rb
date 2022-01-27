@@ -43,7 +43,11 @@ module Flipper
             end
           end
 
-          redirect_to(params["redirect_path"].presence || "/features/#{feature.key}", path_prefix: '')
+          if params["redirect_path"].present?
+            redirect_to(params["redirect_path"], path_prefix: '')
+          else
+            redirect_to("/features/#{feature.key}")
+          end
         end
       end
     end
