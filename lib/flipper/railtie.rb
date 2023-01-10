@@ -2,12 +2,18 @@ module Flipper
   class Railtie < Rails::Railtie
     config.before_configuration do
       config.flipper = ActiveSupport::OrderedOptions.new.update(
-        env_key: "flipper",
-        memoize: true,
-        preload: true,
-        instrumenter: ActiveSupport::Notifications,
-        log: true
+        env_key: ENV.fetch('FLIPPER_ENV_KEY', 'flipper'),
+        memoize: ENV.fetch('FLIPPER_MEMOIZE', 'true').casecmp('true').zero?,
+        preload: ENV.fetch('FLIPPER_PRELOAD', 'true').casecmp('true').zero?,
+        instrumenter: ENV.fetch('FLIPPER_INSTRUMENTER', 'ActiveSupport::Notifications').constantize,
+        log: ENV.fetch('FLIPPER_LOG', 'true').casecmp('true').zero?
       )
+    end
+
+    initializer "flipper.identifier" do
+      ActiveSupport.on_load(:active_record) do
+        ActiveRecord::Base.include Flipper::Identifier
+      end
     end
 
     initializer "flipper.default", before: :load_config_initializers do |app|
@@ -18,28 +24,23 @@ module Flipper
       end
     end
 
-    initializer "flipper.memoizer" do |app|
-      config = app.config.flipper
+    initializer "flipper.log", after: :load_config_initializers do |app|
+      flipper = app.config.flipper
 
-      if config.memoize
-        app.middleware.use Flipper::Middleware::Memoizer, {
-          env_key: config.env_key,
-          preload: config.preload,
-          if: config.memoize.respond_to?(:call) ? config.memoize : nil
-        }
-      end
-    end
-
-    initializer "flipper.log" do |app|
-      config = app.config.flipper
-      if config.log && config.instrumenter == ActiveSupport::Notifications
+      if flipper.log && flipper.instrumenter == ActiveSupport::Notifications
         require "flipper/instrumentation/log_subscriber"
       end
     end
 
-    initializer "flipper.identifier" do
-      ActiveSupport.on_load(:active_record) do
-        ActiveRecord::Base.include Flipper::Identifier
+    initializer "flipper.memoizer", after: :load_config_initializers do |app|
+      flipper = app.config.flipper
+
+      if flipper.memoize
+        app.middleware.use Flipper::Middleware::Memoizer, {
+          env_key: flipper.env_key,
+          preload: flipper.preload,
+          if: flipper.memoize.respond_to?(:call) ? flipper.memoize : nil
+        }
       end
     end
   end

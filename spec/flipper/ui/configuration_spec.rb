@@ -1,5 +1,3 @@
-require 'helper'
-
 RSpec.describe Flipper::UI::Configuration do
   let(:configuration) { described_class.new }
 
@@ -109,6 +107,17 @@ RSpec.describe Flipper::UI::Configuration do
         }
         expect(result).to eq(expected)
       end
+    end
+  end
+
+  describe "#confirm_fully_enable" do
+    it "has default value" do
+      expect(configuration.confirm_fully_enable).to eq(false)
+    end
+
+    it "can be updated" do
+      configuration.confirm_fully_enable = true
+      expect(configuration.confirm_fully_enable).to eq(true)
     end
   end
 

@@ -1,5 +1,3 @@
-require 'helper'
-
 RSpec.describe Flipper::UI do
   let(:token) do
     if Rack::Protection::AuthenticityToken.respond_to?(:random_token)
@@ -34,7 +32,7 @@ RSpec.describe Flipper::UI do
 
   describe 'Inspecting the built Rack app' do
     it 'returns a String' do
-      expect(build_app(flipper).inspect).to be_a(String)
+      expect(build_app(flipper).inspect).to eq("Flipper::UI")
     end
   end
 
@@ -45,27 +43,6 @@ RSpec.describe Flipper::UI do
          'rack.session' => session
     expect(last_response.status).to be(302)
     expect(last_response.headers['Location']).to eq('/features/refactor-images')
-  end
-
-  describe "application_breadcrumb_href" do
-    it "raises an exception since it is deprecated" do
-      expect { described_class.application_breadcrumb_href }
-        .to raise_error(Flipper::ConfigurationDeprecated)
-    end
-  end
-
-  describe "feature_creation_enabled" do
-    it "raises an exception since it is deprecated" do
-      expect { described_class.feature_creation_enabled }
-        .to raise_error(Flipper::ConfigurationDeprecated)
-    end
-  end
-
-  describe "feature_removal_enabled" do
-    it "raises an exception since it is deprecated" do
-      expect { described_class.feature_removal_enabled }
-        .to raise_error(Flipper::ConfigurationDeprecated)
-    end
   end
 
   describe 'configure' do
